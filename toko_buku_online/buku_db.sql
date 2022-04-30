@@ -554,6 +554,234 @@ ORDER BY
 /* 										 */
 /* ===================================== */
 
+
+
+-- Pengelompokan Data menggunakan GROUP BY
+------------------------------------------
+-- Penggunaan kalusa GROUP BY disertakan dalam perintah SELECT
+
+
+-- Contoh 1
+------------------------
+SELECT
+	penerbit_id,
+	COUNT(*)
+FROM
+	buku
+GROUP BY
+	penerbit_id;
+------------------------
+/*
+Keterangan Kode
+------------------------
+Jumlah buku yang ditampilkan dari hasil kode di atas adalah
+hasil dari proses pengelompokan brdasarkan penerbit
+(dalam hal ini kolom penerbit_id).
+*/
+
+
+-- Contoh 2
+------------------------
+SELECT
+	a.penerbit_id as 'Kode Penerbit',
+	b.penerbit_nama as 'Nama Penerbit',
+	COUNT(a.penerbit_id) as 'Jumlah Buku'
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id
+GROUP BY
+	a.penerbit_id,
+	b.penerbit_nama;
+-------------------------
+/*
+Keterangan Kode
+-------------------------
+Pada kode di atas ditambahkan kolom penerbit_nama agar lebih jelas.
+*/
+
+
+-- Contoh 3
+--------------------------
+SELECT
+	a.pengarang_id as 'ID Pengarang',
+	a.pengarang_nama as 'Nama Pengarang',
+	GROUP_CONCAT(b.buku_judul) as 'Daftar Judul Buku'
+FROM
+	pengarang a,
+	buku b,
+	link_buku_pengarang c
+WHERE
+	a.pengarang_id = c.pengarang_id AND
+	b.buku_isbn = c.buku_isbn
+GROUP BY
+	a.pengarang_id,
+	a.pengarang_nama;
+/*
+Keterangan Kode
+------------------------
+Kode terebut akan menampilkan daftar judul buku yagn dikelompokkan berdasarkan pengarang.
+
+GROUP CONCAT() adalah fungsi agregasi yagn berguna untuk mengelompokkan baris data
+menjadi satu teks (string) tunggal.
+*/
+
+
+/*
+------------------------
+-- MENGGABUNGKAN DATA
+------------------------
+Proses menggabungkan 2 query select menjadi 1 dengan perintah UNION
+dengan syarat masing-masing query select menghasilkan jumlah row data yang sama.
+*/
+
+-- Query 1
+----------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE
+	buku_harga <= 40000;
+----------------------
+-- Kode di atas akan menghasilkan 6 row data
+
+
+-- Query 2
+----------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE buku_harga >= 50000;
+----------------------
+-- Kode tersebut menghasilkan 10 row data
+
+
+-- Query 3 : Penggabungan Query menggunakan UNION
+-----------------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE
+	buku_harga <= 40000
+UNION
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE buku_harga >= 50000;
+-----------------------------
+
+
+/*
+--------------------------------------------
+JOIN : SELEKSI DATA DARI 2 TABEL ATAU LEBIH
+--------------------------------------------
+Seleksi data dari 2 tabel atau lebih, lebih rumit
+dibandingkan seleksi data dari 1 tabel.
+Syarat utamanya adalah adanya kolom relasi.
+Kolom relasi adalah kolom yang digunakan
+sebagai kunci untuk menghubungkan antara tabel
+yang satu dengan tabel yang lain.
+*/
+
+
+-- Contoh 1 :
+-- Seleksi data dari 2 tabel (sederhana)
+-------------------------------------
+SELECT
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id;
+-------------------------------------
+/*
+Keterangan Kode
+Tampilkan data dari kolom buku_isbn dan buku_judul pada tabel buku
+dengan nama alias a, serta kolom penerbit nama pada tabel penerbit
+dengan nama alias b yang nilai penerbit_id nya sama.
+*/
+
+
+-- Contoh 2
+-- Seleksi data yang melibatkan 4 tabel
+-----------------------------------------
+SELECT
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama,
+	GROUP_CONCAT(d.pengarang_nama)
+FROM
+	buku a,
+	penerbit b,
+	link_buku_pengarang c,
+	pengarang d
+WHERE
+	a.penerbit_id = b.penerbit_id AND
+	a.buku_isbn = c.buku_isbn AND
+	c.pengarang_id = d.pengarang_id
+GROUP BY
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama;
+-----------------------------------------
+
+
+-- Contoh 3
+-- Seleksi data Tambahan
+-----------------------------------------
+SELECT
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama,
+	GROUP_CONCAT(d.kategori_nama)
+FROM
+	buku a,
+	penerbit b,
+	link_buku_kategori c,
+	kategori d
+WHERE
+	a.penerbit_id = b.penerbit_id AND
+	a.buku_isbn = c.buku_isbn AND
+	c.kategori_id = d.kategori_id
+GROUP BY
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama;
+-----------------------------------------
+
+
+/*
+----------------------------------------
+PENGURANGAN DAN INTERSEKSI DATA
+----------------------------------------
+
+*/
+
+
+/*
+----------------------------------------
+SUBQUERY
+----------------------------------------
+
+*/
+
+
 To be Continued
 -- View : Tabel Virtual
 -- Manajemen User
