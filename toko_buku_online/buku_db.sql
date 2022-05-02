@@ -770,20 +770,358 @@ GROUP BY
 ----------------------------------------
 PENGURANGAN DAN INTERSEKSI DATA
 ----------------------------------------
-
+Hal ini dilakukan untuk menyeleksi sekelompok data dari satu tabel
+lalu dikurangi dengan sekelompok data dari tabel lain
 */
+
+-- Contoh 1 : Menggunakan INNER JOIN
+---------------------------------------
+-- 1. Masukkan data dulu ke tabel penerbit
+----------------------------------------
+INSERT INTO penerbit
+VALUES ('PB09', 'MODULA');
+----------------------------------------
+
+-- 2. Lihat data penerbit_id pada tabel penerbit
+----------------------------------------
+SELECT
+	a.penerbit_id
+FROM
+	penerbit a;
+----------------------------------------
+
+-- 3. Lihat data penerbit_id pada tabel buku ditambah klausa DISTINCT
+----------------------------------------
+SELECT DISTINCT
+	b.penerbit_id
+FROM
+	buku b;
+----------------------------------------
+
+-- 4. Lakukan interseksi data dengan query berikut
+----------------------------------------
+SELECT DISTINCT
+	a.penerbit_id
+FROM
+	penerbit a
+INNER JOIN
+	buku b
+USING
+	(penerbit_id);
+----------------------------------------
+-- Hasil yang muncul merupakan irisan dari data query pertama
+-- dan query ke dua.
+
+
+-- Contoh 2 : Menggunakan MINUS / NOT IN
+---------------------------------------
+-- 1. Lihat data penerbit_id pada tabel penerbit
+----------------------------------------
+SELECT
+	a.penerbit_id
+FROM
+	penerbit a;
+----------------------------------------
+
+-- 2. Lihat data penerbit_id dari tabel buku, gunakan  klausa DISTINCT
+----------------------------------------
+SELECT DISTINCT
+	b.penerbit_id
+FROM
+	buku b;
+----------------------------------------
+
+-- 3. Lakukan pengurangan data query 1 dengan query 2
+----------------------------------------
+SELECT DISTINCT
+	a.penerbit_id
+FROM
+	penerbit a
+WHERE
+	(a.penerbit_id) NOT IN
+	(SELECT b.penerbit_id FROM buku b);
+---------------------------------------
+-- Hasilnya adalah data penerbit_id pada tabel penerbit
+-- yang tidak ada pada data penerbit_id tabel buku.
+
 
 
 /*
 ----------------------------------------
 SUBQUERY
 ----------------------------------------
+Subquery adalah perintah SELECT yang terdapat dalam perintah SELECT lain.
+Hal ini memudahkan kita untuk membuat berbagai format laporan
+semisal crosstab query.
+*/
 
+-- Contoh 1
+-- Membuat query yang dapat menampilkan jumlah buku
+-- yang diterbitkan oleh masing-masing penerbit.
+-- kita akan menggunakan tabel buku dan tabel penerbit.
+----------------------------------------
+SELECT
+	a.penerbit_id,
+	a.penerbit_nama,
+	(SELECT
+		COUNT(*)
+	FROM
+		buku
+	WHERE
+		penerbit_id = a.penerbit_id)
+	as 'Jumlah Buku'
+FROM
+	penerbit a;
+----------------------------------------
+/*
+Pada contoh tersebut perintah SELECT bagian luar digunakan untuk
+menyeleksi data dari tabel penerbit, sedangkan bagian dalam
+digunakan untuk menyeleksi data dari tabel buku.
+
+Subquery juga biasa digunakan sebagai kolom penentu kondisi query
+(di bagian WHERE)
+*/
+
+-- Contoh 2 : Subquery sebagai penentu bagian WHERE
+----------------------------------------
+SELECT
+	penerbit_id,
+	penerbit_nama
+FROM
+	penerbit
+WHERE
+	penerbit_id NOT IN
+	(SELECT
+		penerbit_id
+	FROM
+		buku);
+----------------------------------------
+/*
+Perintah di atas digunakan untuk menampilkan data pada tabel 'penerbit'
+(kolom 'penerbit_id' dan 'penerbit_nama') yang datanya
+tidak terdapat pada tabel buku.
 */
 
 
-To be Continued
--- View : Tabel Virtual
+/* ===================================== */
+/*                  BAB 8                */
+/* ------------------------------------- */
+/* 			VIEW : Tabel Virtual 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+/*
+Pendahuluan
+------------
+View adalah objek di dalam database yang berisi kumpulan kolom
+yang dihasilkan dari perintah SELECT.
+
+Secara sederhana, View adalah objek yang menyimpan hasil query,
+baik dari satu tabel atau lebih.
+
+View juga sering disebut sebagai 'Tabel Virtual',
+karena view sebenarnya tidak memiliki data.
+
+Data yang ditampilkan oleh view diambil dari tabel-tabel aktual
+yang disertakan dalam perintah SELECT.
+
+Mengapa perlu menggukan View?
+-----------------------------
+1. Akses data menjadi lebih mudah
+	- View dapat digunakan untuk menampilkan rangkuman dari suatu perhitungan tertentu.
+	- View dapat menampilkan beberapa kolom atau beberapa baris saja dari suatu tabel,
+		tergantung kondisi yagn didefinisikan.
+	- View dapat digunakan untuk menampilkan data yang berasal dari dua tabel atau lebih.
+
+2. View dapat digunakan untuk menampilkan data yang berbeda
+untuk masing-masing user, sehingga setiap user hanya dapat melihat data
+sesuai dengan hak aksesnya.
+
+* Pada kasus-kasus tertentu, VIEW dapat dimodifikasi dengan perintah INSERT, UPDATE dan DELETE.
+* Jika suatu data pada VIEW berubah, maka yang sebenarnya berubah
+  adalah data pada base table.
+*/
+
+-- 1. Membuat VIEW
+---------------------------
+CREATE VIEW v_buku AS
+SELECT
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama,
+	a.buku_tglterbit,
+	a.buku_jmlhalaman,
+	a.buku_harga
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id
+ORDER BY
+	a.buku_judul;
+---------------------------
+
+
+-- 2. Menampilkan VIEW
+---------------------------
+SELECT * FROM v_buku;
+---------------------------
+
+
+-- 3. Melihat daftar kolom pada View
+-------------------------------------
+DESC v_buku;
+-------------------------------------
+
+
+-- 4. Mengubah VIEW
+-------------------------------------
+ALTER VIEW v_buku AS
+SELECT
+	a.buku_isbn,
+	a.buku_judul,
+	b.penerbit_nama,
+	a.buku_harga
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id
+ORDER BY
+	a.buku_judul;
+-------------------------------------
+-- Test Perubahan VIEW
+SELECT * FROM v_buku;
+-------------------------------------
+
+
+-- 5. Menghapus VIEW
+-------------------------------------
+-- Format 1
+DROP VIEW IF EXISTS v_buku;
+
+-- Format 2
+DROP VIEW v_buku;
+-------------------------------------
+
+
+-- 6. Membuat VIEWyang dapat dimodifikasi
+/*
+Suatu View dapat dimodifikasi jka kolom-kolom dalam view tersebut
+mengacu langsung ke kolom yang terdapat pada base table,
+bukan hasil proses perhitungan.
+*/
+
+-- Contoh 1
+-- View yang tidak dapat dimodifikasi
+-------------------------------------
+CREATE VIEW v_jmlBukuPerPenerbit AS
+SELECT
+	b.penerbit_nama AS 'Nama Penerbit',
+	COUNT(a.buku_judul) AS 'Jumlah Buku'
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id
+GROUP BY
+	b.penerbit_nama
+ORDER BY
+	b.penerbit_nama;
+-------------------------------------
+-- Menampilkan View
+
+SELECT * FROM v_jmlBukuPerPenerbit;
+-------------------------------------
+/*
+View di atas tidak dapat dimodifikasi
+karena data yang ditampilkan
+merupakan hasil dari proses perhitungan
+(dari fungsi agregasi COUNT()).
+*/
+-------------------------------------
+
+
+-- Contoh 2
+-- View yang dapat dimodifikasi
+-------------------------------------
+CREATE VIEW v_jmlHalaman AS
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_jmlhalaman
+FROM
+	buku
+ORDER BY
+	buku_isbn;
+-------------------------------------
+-- Menampilkan View
+
+SELECT * FROM v_jmlHalaman;
+-------------------------------------
+-- Modifikasi View
+
+UPDATE v_jmlHalaman
+SET
+	buku_jmlhalaman = buku_jmlhalaman + 10
+WHERE
+	buku_isbn = '999-11555-2-1';
+-------------------------------------
+-- Mencoba View dengan data tertentu
+
+SELECT * FROM v_jmlHalaman
+WHERE
+	buku_isbn = '999-11555-2-1';
+-------------------------------------
+/*
+Jika query tersebut dijalankan maka data jumlah halaman yang awalnya berjumlah 270
+akan berubah menjadi 280, dan perubahan tersebut tersimpan dalam database.
+
+Hal ini dikarenakan kita telah melakukan update pada View.
+
+Catatan : saat kita mengubah data pada suatu view, maka yang berubah adalah
+data pada base tabel, karena view tidak memiliki data.
+Inilah yang membuat View dinamakan sebagai 'Tabel Virtual'.
+*/
+-- Sebagai pembuktian
+-- Kita cooba mengakses data tersebut tanpa View
+
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_jmlhalaman
+FROM
+	buku
+WHERE
+	buku_isbn = '999-11555-2-1';
+
+-- Hasil yang ditampilkan sama dengan view 'v_jmlHalaman'
+-------------------------------------
+
+-- 7. Batasan-batasan Penggunaan VIEW
+-------------------------------------
+/*
+1. Pendefinisian VIEW dapat menambahkan klausa yang terdapat pada perintah SELECT
+	seperti WHERE, GROUP BY, ORDER BY, dll.
+
+2. Tidak bisa membuat view temporary.
+
+3. Tidak dapat mengasosiasikan trigger dengan VIEW
+
+4. Tabel-tabel yang diakses menggunakan view harus ada di dalam database,
+	Jika nama tabel dirubah,maka view tidak dapat digunakan lagi
+	(terjadi kesalahan saat eksekusi).
+
+5. Perintah SELECT yang didefinisikan di dalam VIEW tidak boleh
+	berisi konstruksi-konstruksi berikut:
+	- Subquery di dalam klausa FROM
+	- Mengacu kepada tabel temporary
+*/
+
+-- 	============================
+		To be Continued
+-- 	============================
 -- Manajemen User
 -- Fungsi Agregasi
 -- Operator dan Fungsi
