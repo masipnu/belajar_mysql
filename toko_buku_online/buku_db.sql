@@ -1119,10 +1119,166 @@ WHERE
 	- Mengacu kepada tabel temporary
 */
 
+
+/* ===================================== */
+/*                  BAB 9                */
+/* ------------------------------------- */
+/* 				Manajemen User	 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+/*
+Pendahuluan
+------------
+User adalah orang yang dapat menggunakan database.
+Sejauh mana user dapat bekerja di dalam database ditentukan oleh
+hak akses yang dimilikinya.
+Apakah sebagai Database Administrator atau operator.
+*/
+
+-- 1. Membuat User
+------------------------------------------
+CREATE USER admin IDENTIFIED BY 's3cr3t';
+------------------------------------------
+-- Pada query di atas kita hanya membuat user dengan diberi password 's3cr3t'.
+-- Maka kita sudah bisa login menggunakan user 'admin',
+-- namun belum bisa mengakses seluruh database, kecuali 'information_schema'.
+
+-- 2. Login user baru
+------------------------------------------
+mysql -u admin -p
+------------------------------------------
+-- Tekan ENTER dan masukkan password 's3cr3t' lalu ENTER.
+-- Coba tampilkan database dengan query  berikut
+------------------------------------------
+SHOW DATABASES;
+------------------------------------------
+-- Database yang tampil hanya 'information_schema'
+
+-- Coba untuk mengaktifkan database 'buku_db'
+------------------------------------------
+USE buku_db;
+------------------------------------------
+-- Yang terjadi adalah error  : Access Denied,
+-- Karena user admin belum diberi hak akses terhada database 'buku_db'
+
+-- 3. Mengenal Hak Akses
+------------------------------------------
+/*
+Hak akses dibagi menjadi 2, yaitu:
+- Level User
+- Level Administrator
+
+Hak akses level user meliputi:
+1. CREATE
+2. CREATE TEMPORARY TABLES
+3. CREATE VIEW
+4. DELETE
+5. EXECUTE
+6. INDEX
+7. INSERT
+8. LOCK TABLES
+9. SELECT
+10. SHOW DATABASES
+11. SHOW VIEW
+12. UPDATE
+13. USAGE
+
+Hak akses level administrator meliputi:
+1. ALL
+2. ALTER
+3. CREATE USER
+4. DROP
+5. FILE
+6. PROCESS
+7. RELOAD
+8. SHUTDOWN
+*/
+
+
+-- 4. Memberi Hak Akses
+------------------------------------------
+
+-- Versi 1
+------------------------------------------
+GRANT ALL
+ON buku_db.*
+TO 'admin'@'%'
+IDENTIFIED BY 's3cr3t';
+------------------------------------------
+-- Query di atas digunakan untuk memberikan seluruh hak akses kepada 'admin'
+
+
+-- Versi 2
+------------------------------------------
+GRANT USAGE, INSERT, UPDATE, DELETE, SELECT
+ON pengarang
+TO 'admin'@'%'
+IDENTIFIED BY 's3cr3t';
+------------------------------------------
+-- Query di atas digunakan untuk memberi hak akses user
+-- dengan beberapa hak akses tertentu
+-- untuk pemiisah hak akses menggunakan tanda koma ','
+
+
+-- 5. Mencabut Hak Akses
+------------------------------------------
+
+-- Versi 1
+------------------------------------------
+REVOKE ALL ON buku_db.* FROM admin;
+------------------------------------------
+-- Mencabut seluruh hak akses pada seluruh tabel dalam database 'buku_db'
+
+
+-- Versi 2
+------------------------------------------
+REVOKE USAGE, INSERT, UPDATE, DELETE, SELECT
+ON pengarang
+FROM admin;
+------------------------------------------
+-- Mencabut beberapa hak akses user yang ditentukan sebelumnya.
+
+
+-- 6. Menghapus User
+------------------------------------------
+DROP USER 'admin'@'%';
+------------------------------------------
+
+
+-- 7. Mengetahui Hak Akses User
+------------------------------------------
+/*
+Ketika kita melakukan perintah GRANT dan REVOKE, maka MySQL akan menyimpan
+informasi hak akses ke dalam database 'mysql'.
+
+Dengan demikian, sebenarnya kita bisa memberi dan mencabut hak akses
+seorang user dengan mengedit isi dari database tersebut.
+
+Akan tetapi jika kita mengedit data pada database mysql,
+kita perlu melakukan query berikut:
+---------------------------
+FLUSH PRIVILEGES;
+---------------------------
+Query tersebut berguna untuk memuat ulang (refresh) perubahan
+yang telah dilakukan ke dalam database mysql.
+*/
+
+-- Melihat daftar kolomdari tabel tertentu (misalnya tabel user)
+------------------------------------------
+DESC user;
+------------------------------------------
+
+-- Melihat daftar user yagn ada di server MySQL
+-----------------------------------------
+SELECT user, host FROM user;
+-----------------------------------------
+
+
 -- 	============================
 		To be Continued
 -- 	============================
--- Manajemen User
 -- Fungsi Agregasi
 -- Operator dan Fungsi
 -- Mendefinisikan Prosedur dan Fungsi
