@@ -1276,10 +1276,406 @@ SELECT user, host FROM user;
 -----------------------------------------
 
 
+/* ===================================== */
+/*                  BAB 10               */
+/* ------------------------------------- */
+/* 				Fungsi Agregasi	 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+/*
+Pendahuluan
+---------------
+Fungsi Agregasi adalah fungsi di dalam SQL yang digunakan
+untuk melakukan perhitungan pada query.
+
+Pada umumnya, penggunaannya dikombinasikan dengan klausa
+GROUP BY untuk menghasilkan rangkuman nilai yang
+dikelompokkan berdasarkan kolom tertentu.
+
+Yang termasuk fungsi agregasi ada 6, yaitu:
+1. MIN()
+2. MAX()
+3. SUM()
+4. COUNT()
+5. AVG()
+6. GROUP_CONCAT()
+*/
+
+/*
+1. Fungsi MIN()
+-------------------
+Berfungsi untuk mengembalikan nilai minimal dari suatu kolom
+pada tabel tertentu.
+
+Contohnya untuk mengetahui jumlah halaman paling sedikit
+dari daftar buku yang terdapat pada tabel 'buku'
+*/
+-- Contoh Kode MIN() pada kolom bertipe angka
+-------------------------
+SELECT
+	MIN(buku_jmlhalaman)
+FROM
+	buku;
+-------------------------
+/*
+Query MIN() di atas diterapkan pada kolom yang bertipe numerik.
+Jika query MIN() diterapkan pada kolom bertipe teks,
+maka akan mengembalikan nilai terkecil dari teks yang ada
+berdasarkan urutan abjad.
+*/
+
+-- Contoh query MIN() pada kolom bertipe teks
+-------------------------
+SELECT
+	MIN(buku_judul)
+FROM
+	buku;
+-------------------------
+
+/*
+2. Fungsi MAX()
+-------------------------
+Fungsi MAX() adalah fungsi kebalikan dari fungsi MIN(),
+yang berguna untuk memperoleh nilai maksimal dari suatu kolom
+yang terdapat dalam tabel tertentu.
+
+Fungsi MAX() dapat diaplikasikan pada kolom bertipe angka
+dan teks.
+*/
+
+-- Contoh Kode MAX() pada kolom bertipe angka
+--------------------------
+SELECT
+	MAX(buku_jmlhalaman)
+FROM
+	buku;
+--------------------------
+
+
+-- Contoh Kode MAX() pada kolom bertipe teks
+--------------------------
+SELECT
+	MAX(buku_judul)
+FROM
+	buku;
+--------------------------
+
+/*
+3. Fungsi SUM()
+--------------------------
+Fungsi SUM() berfungsi untuk menjumlahkan nilai
+dari suatu kolom dalam tabel tertentu.
+
+Sebagai contoh, untuk menghitung jumlah total dari
+kolom 'buku_jmlhalaman' pada tabel 'buku'.
+*/
+
+-- Contoh query SUM()
+--------------------------
+SELECT
+	SUM(buku_jmlhalaman)
+FROM
+	buku;
+--------------------------
+/*
+Nilai yang tampil dari hasil query tersebut merupakan
+jumlah total dari semua perintah yang tersimpan dalam
+kolom 'buku_jmlhalaman' pada tabel 'buku'.
+*/
+
+
+/*
+4. Fungsi COUNT()
+-------------------------
+Fungsi COUNT() berfungsi untuk memperoleh banyaknya baris
+yang dihasilkan oleh suatu query.
+*/
+
+-- Contoh query COUNT()
+------------------------
+SELECT
+	COUNT(*)
+FROM
+	buku
+WHERE
+	penerbit_id = 'PB06';
+------------------------
+
+/*
+Sebagai pembuktian, kita bisa mengecek data
+secara manual dengan query berikut
+*/
+------------------------
+SELECT
+	buku_isbn,
+	buku_judul
+FROM
+	buku
+WHERE
+	penerbit_id = 'PB06';
+------------------------
+/*
+Hasil dari query di atas menunjukkan bahwa terdapat
+5 baris data di dalam tabel buku dengan 'penerbit_id'
+bernilai 'PB06'.
+*/
+
+
+/*
+5. Fungsi AVG()
+--------------------------------
+Fungsi AVG() berguna untuk menghitung nilai rata-rata
+dari suatu kolom yang dihasilkan oleh query tertentu
+
+Sebagai contoh, untuk menghitung nilai rata-rata
+dari jumlah halaman buku yang berasal dari penerbit
+dengan kode 'PB06'.
+--------------------------------
+*/
+
+-- Contoh query AVG()
+--------------------------------
+SELECT
+	AVG(buku_jmlhalaman)
+FROM
+	buku
+WHERE
+	penerbit_id = 'PB06';
+--------------------------------
+
+/*
+Sebagi pembuktian, gunakan query berikut
+dan hitung secara manual
+*/
+
+--------------------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	penerbit_id,
+	buku_jmlhalaman
+FROM
+	buku
+WHERE
+	penerbit_id = 'PB06';
+--------------------------------
+/*
+Perhitungannya adalah
+(450 + 490 + 346 + 400 + 300) / 5
+hasilnya = 397,2
+*/
+
+
+/*
+6. GROUP_CONCAT
+--------------------------------
+Fungsi GROUP_CONCAT() adalah untuk menyambung
+beberapap baris data dari suatu kolom
+menjadi sebuah teks tunggal.
+*/
+
+
+-- Query sebelum menggunakan GROUP_CONCAT()
+--------------------------------
+SELECT
+	penerbit_nama
+FROM
+	penerbit;
+--------------------------------
+-- Data ditampilkan menjadi beberapa baris
+
+
+-- Query menggunakan GROUP_CONCAT()
+--------------------------------
+SELECT
+	GROUP_CONCAT(penerbit_nama)
+FROM
+	penerbit;
+--------------------------------
+-- Data ditampilkan menjadi satu baris data
+
+
+/*
+Dalam studi kasus database buku, fungsi GROUP_CONCAT()
+bisa diterapkan untuk mengelompokkan judul buku
+berdasarkan penerbit, menggunakan query berikut.
+*/
+
+--------------------------------
+SELECT
+	b.penerbit_nama,
+	GROUP_CONCAT(a.buku_judul)
+FROM
+	buku a,
+	penerbit b
+WHERE
+	a.penerbit_id = b.penerbit_id
+GROUP BY
+	b.penerbit_nama
+ORDER BY
+	b.penerbit_nama;
+--------------------------------
+/*
+Hasil dari query tersebut akan tampak daftar judul buku
+yang ditampilkan dalam sebuah teks tunggal
+yang dikelompokkan berdasarkan nama penerbit.
+
+Fungsi GROUP_CONCAT() bisa dikustomisasi dengan beberapa
+klausa berikut : 
+1. SEPARATOR
+2. ORDER BY
+3. DISTINCT
+*/
+
+/*
+1. SEPARATOR
+-------------
+Secara default, pemisah yang digunakan dalam
+fungsi GROUP_CONCAT() adalah tanda koma (,),
+namun kita bisa kustomisasi dengan klausa SEPARATOR.
+*/
+--------------------------------
+SELECT
+	GROUP_CONCAT(penerbit_nama SEPARATOR ' - ' )
+FROM
+	penerbit;
+--------------------------------
+
+
+/*
+2. ORDER BY
+--------------
+Digunakan untuk mengurutkan nilai yang akan digabung
+dengan fungsi GROUP_CONCAT().
+*/
+--------------------------------
+SELECT
+	GROUP_CONCAT(penerbit_nama ORDER BY penerbit_nama)
+FROM
+	penerbit;
+--------------------------------
+
+
+/*
+3. DISTINCT
+-------------
+Klausa DISTINCT bisa digunakan untuk menghilangkan
+duplikasi data yang akan digabung dengan GROUP_CONCAT().
+*/
+--------------------------------
+SELECT
+	GROUP_CONCAT(DISTINCT penerbit_nama)
+FROM
+	penerbit;
+--------------------------------
+
+/*
+Catatan:
+- Jika ketiga klausa tersebut digabung dalam fungsi GROUP_CONCAT()
+maka harus diurutkan yaitu DISTINCT, ORDER BY, SEPARATOR.
+Jika tidak, maka akan error.
+*/
+
+-- Contoh :
+--------------------------------
+SELECT
+	GROUP_CONCAT(
+		DISTINCT penerbit_nama
+		ORDER BY penerbit_nama
+		SEPARATOR ', ')
+FROM
+	penerbit;
+--------------------------------
+
+/*
+Catatan:
+Fungsi GROUP_CONCAT() akan mengabaikan nilai NULL.
+*/
+
+
+/*
+Penggunaan Agregasi untuk nilai NULL
+------------------------------------
+Secara umum fungsi-fungsi agregasi akan mengabaikan
+nilai NULL, kecuali COUNT().
+
+Fungsi COUNT() memiliki sifat-sifat berikut:
+1. COUNT(*) tidak akan mengabaikan nilai NULL
+2. COUNT(ekspresi) dan COUNT(DISTINCT)
+	akan mengabaikan nilai NULL
+
+Untuk menguji kedua sifat di atas,
+kita bisa melakukan pengujian sebagai berikut.
+*/
+
+-- 1. Membuat tabel
+--------------------------------
+CREATE TABLE tnull(
+	a int
+);
+--------------------------------
+
+-- 2. Menambahkan data
+--------------------------------
+INSERT INTO tnull VALUES
+(NULL),
+(NULL),
+(NULL),
+(NULL),
+(NULL);
+--------------------------------
+
+-- Pembuktian sifat pertama
+--------------------------------
+SELECT
+	COUNT(*)
+FROM
+	tnull;
+--------------------------------
+/*
+Hasil query tersebut akan memberikan hasil 5,
+karena NULL juga ikut dihitung sebagai satu baris data.
+*/
+
+-- Pembuktian sifat ke dua
+--------------------------------
+SELECT
+	COUNT(a)
+FROM
+	tnull;
+--------------------------------
+SELECT
+	COUNT(DISTINCT a)
+FROM
+	tnull;
+--------------------------------
+/*
+Hasil query di atas, akan memberikan nilai 1,
+karena nilai NULL tidak dihitung sebagai
+satu baris data, dengan kata lain nilai NULL
+akan diabaikan.(pernyataan di buku)
+
+Terjadi perbedaan, ketika saya coba sendiri,
+hasil dari query  2 dan 3, mengembalikan hasil 0.
+*/
+
+-- Percobaan seluruh fungsi agregasi terhadap nilai NULL
+SELECT MIN(a) FROM tnull;
+SELECT MAX(a) FROM tnull;
+SELECT SUM(a) FROM tnull;
+SELECT COUNT(a) FROM tnull;
+SELECT AVG(A) FROM tnull;
+SELECT GROUP_CONCAT(a) FROM tnull;
+/*
+Semua akan mengembalikan nilai NULL, kecuali COUNT().
+*/
+
+
 -- 	============================
 		To be Continued
 -- 	============================
--- Fungsi Agregasi
 -- Operator dan Fungsi
 -- Mendefinisikan Prosedur dan Fungsi
 -- Trigger
