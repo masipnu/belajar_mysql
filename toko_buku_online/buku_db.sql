@@ -1673,6 +1673,201 @@ Semua akan mengembalikan nilai NULL, kecuali COUNT().
 */
 
 
+/* ===================================== */
+/*                  BAB 11                */
+/* ------------------------------------- */
+/* 			Fungsi dan Operator	 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+
+/*
+MySQL menyediakan banyaj operator dan fungsi built-in yang dapat bermanfaat
+dalam pembuatan query.
+
+Fungsi built-in adalah fungsi siap pakai yang sudah didefinisikan oleh MySQL
+untuk menunjang kemudahan bagi para penggunanya.
+
+Pada umumnya operator dan fungsi digunakan pada perintah SELECT
+dan kalusa WHERE.
+*/
+
+
+/*
+1. Operator
+----------------------
+Operator merupakan simbol-simbol khusus yang diguankan untuk melakukan
+opersi-operasi tertentu, seperti perhitungan, perbandingan dua nilai, dan lain-lain.
+
+Operator dikategorikan menjadi 3 kelompok, yaitu:
+1. Operator Aritmatika
+2. Operator Relasional
+3. Operator Logika
+*/
+
+
+/*
+a. Operator Aritmatika
+----------------------
+Digunakan untuk melakukan perhitungan di dalam query maupun prosedur/ fungsi.
++	: Untuk melakukan operasi penjumlahan
+-	: Untuk melakukan operasi pengurangan
+*	: Untuk melakukan operasi perkalian
+/	: Untuk melakukan operasi pembagian
+*/
+
+-- Contoh Operasi Aritmatika
+-----------------------------
+SELECT
+	buku_judul as 'Judul',
+	buku_harga as 'Harga Normal',
+	buku_harga - (0.25 * buku_harga) as 'Harga Diskon (25%)'
+FROM
+	buku
+WHERE
+	buku_isbn IN ('222-34222-1-0', '222-34222-1-1');
+-----------------------------
+/*
+Query di atas digunakan untuk menampilkan daftar buku
+dan harga normal serta harga setelah mendapatkan diskon
+sebesar 25%.
+
+Operasi di atas melibatkan operasi perkalian dan pengurangan.
+*/
+
+
+/*
+b. Operator Relasional
+----------------------
+Digunakan untuk mebandingkan dua nilai atau ekspresi.
+
+Yang termasuk ke dalam operator relasional adalah:
+=						: Sama dengan
+!= atau <>				: Tidak sama dengan
+<						: Lebih kecil
+<=						: Lebih kecil atau sama dengan
+>						: Lebih besar
+>=						: Lebih besar atau sama dengan
+n BETWEEN min AND max	: Memeriksa, apakah n berada di dalam rentang min dan max atau tidak
+n IN (ser)				: Memeriksa keanggotaan himpunan (set),
+						  apakah n anggota dari himpunan yang didefinisikan atau tidak
+n IS NULL 				: Memeriksa nilai n dengan nilai NULL
+ISNULL					: Fungsi untuk memeriksa nilai n, NULL atau tidak
+*/
+
+-- Contoh penggunaan operator relasional
+----------------------------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE
+	buku_harga <= 50000;
+----------------------------------------
+/*
+Query di atas digunakan untuk menampilkan daftar buku yang harganya
+lebih kecil atau sama dengan Rp. 50.000
+*/
+
+
+/*
+c. Operator Logika
+----------------------
+
+*/
+
+
+/*
+2. Fungsi-fungsi untuk teks
+----------------------
+
+*/
+
+
+/*
+a. Fungsi concat()
+---------------------
+
+*/
+
+
+/*
+b. Fungsi length()
+---------------------
+
+*/
+
+
+/*
+c. Fungsi locate()
+---------------------
+
+*/
+
+
+/*
+d. Fungsi lower() dan upper()
+------------------------------
+
+*/
+
+
+/*
+e. Fungsi quote()
+---------------------
+
+
+
+*/
+
+
+/*
+f.  Fungsi replace()
+----------------------
+
+
+*/
+
+
+/*
+G. Fungsu substring()
+---------------------
+
+*/
+
+
+/*
+
+7. Fungsi trim(), ltrim(), rifht()
+
+*/
+
+
+/*
+3. Fungsi untuk Bilangan
+--------------------------
+
+*/
+
+
+/*
+4. Fungsi untuk Tanggak dan waktu
+---------------------------------
+
+*/
+
+
+/*
+5. Fungsi untuk Konversi tyoe (typecasting)
+--------------------------------------------
+
+*/
+
+
+
 -- 	============================
 		To be Continued
 -- 	============================
