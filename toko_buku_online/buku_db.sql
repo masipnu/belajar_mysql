@@ -1776,92 +1776,306 @@ lebih kecil atau sama dengan Rp. 50.000
 /*
 c. Operator Logika
 ----------------------
+Berfungsi untuk mengecek nilai kebenaran: benar (true) dan salah (false).
 
+Berikut daftar operator logika dalam MySQL:
+AND atau &&	: Operasi logika AND (dan)
+OR atau ||	: Operasi logika OR (atau)
+NOT atau !	: Operasi logika negasi (bukan/ tidak)
+XOR			: Operasi EXCLUSIVE OR
+
+Hal-hal yang perlu diperhatikan dalam penggunaan operator logika adalah:
+
+1. Dalam operasi AND,
+	nilai true hanya diperoleh jika kedua ekspresi atau operandd bernilai true.
+	selain koondisi tersebut, nilai yang dihasilkan adalah false.
+
+2. Dalam operasi OR,
+	nilai false hanya diperoleh jika kedua ekspresi atau operand bernilai false.
+	Selain kondisi tersebut, nilai yang dihasilkan adalah true.
+
+3. Dalam operasi XOR,
+	nilai true hanya diperoleh jika salah satu (bukan keduannya) ekspresi
+	atau operand bernilai true.
+*/
+
+-- Contoh penggunaan operator logika
+------------------------------------
+SELECT
+	buku_isbn,
+	buku_judul,
+	buku_harga
+FROM
+	buku
+WHERE
+	buku_harga <= 50000 AND
+	penerbit_id = 'PB06';
+------------------------------------
+/*
+Query tersebut digunakan untuk menampilkan data buku yang harganya di bawah
+atau sama dengan 50.000 dan memiliki kode penerbit 'PB06'.
 */
 
 
 /*
 2. Fungsi-fungsi untuk teks
 ----------------------
+Adalah fungsi-fungsi yang digunakan untuk emlakukan manipulasi pada teks,
+baik di dalam query maupun prosedur/ fungsi.
 
+Selain itu terdapat juga fungsi yang berguna utnuk membandingkan dua teks,
+apakah sama atau tidak.
+
+Berikut daftar fungsi built-in MySQL untuk teks yang sering digunakan.
+
+	concat(s1, s2, ...)			: Menyambung teks s1 dengan s2 dan seterusnya
+
+	length(s)					: Mengembalikan lebar (jumlah karakter)
+
+	locate(s2, s2, n)			: Mencari teks s1 dalam s2 yang dimulai dari posisi ke-n
+								  Nilai kembalian adalah posisi awal teks s1
+
+	lower()						: Mengubah semua karakter teks s menjadi huruf kecil
+
+	upper()						: Mengubah semua karakter teks s menjadi huruf besar
+
+	quote(s)					: Mengapit teks dengan tanda petik tunggal
+
+	replace(s, slama, sbaru)	: Mengganti teks slama di dalam teks s dengan teks sbaru
+
+	substring(s, posisi, lebar)	: Mengambil bagian teks dari s dimulai dari
+								  posisi sebanyak lebar karakter
+
+	trim(s)						: Membuang whitespace (karakter kosong) yang terdapat
+								  di bagian awal dan akhir teks
+
+	ltrim(s)					: Membuang whitespace (karakter kosong) yang terdapat
+								  di bagian awal (kiri) teks s
+
+	rtrim(s)					: Membuang whitespace (karakter kosong) yang terdapat
+								  di bagian akhir (kanan) teks s
 */
 
 
 /*
 a. Fungsi concat()
 ---------------------
-
+Berfungsi untuk menyambung dua teks atau lebih tergantung pada banyaknya parameter
+yang dilewatkan pada saat pemanggilan fungsi.
+*/
+-----------------------------------------
+SELECT CONCAT('Belajar', ' ', 'MySQL');
+-----------------------------------------
+/*
+Query concat() di atas berguna untuk menyambung tiga teks sekaligus, yaitu : 'Belajar',
+karakter spasi dan 'MySQL'. hasilnya adalah teks 'Belajar MySQL'
 */
 
 
 /*
 b. Fungsi length()
 ---------------------
-
+Berfungsi untuk mengetahui panjang karakter yang menyusun sebuah teks.
+*/
+-----------------------------------------
+SELECT LENGTH('MySQL')
+-----------------------------------------
+/*
+Query di atas akan menampilkan nilai 5, yang merupakan
+jumlah karakter penyusun teks 'MySQL'
 */
 
 
 /*
 c. Fungsi locate()
 ---------------------
+Berfungsi untuk mencari suatu karakter atau bagian teks (substring)
+*/
+-----------------------------------------
+SELECT LOCATE('base', 'Pemrograman Database', 1);
+-----------------------------------------
+/*
+Query di atas akan mencari substring 'base' di dalam teks 'Pemrograman Database'.
+Pencarian dilakukan mulai posisi karakter ke-1.
 
+Hasil yang diperoleh adalah 17. Hal ini menunjukkan bahwa substring 'base'
+ditemukan pada posisi karakter ke-17.
+
+Jika substring yang dicari tidak ditemukan,
+maka fungsi locate akan mengembalikan nilai 0.
 */
 
 
 /*
 d. Fungsi lower() dan upper()
 ------------------------------
-
+Klausa lower() berfungsi untuk mengembalikan karakter teks menjadi huruf kecil semua,
+sedangkan klausa upper() berfungsi untuk mengembalikan karakter teks menjadi
+huruf besar semua.
 */
+-----------------------------------------
+SELECT LOWER('Pemrograman Database')
+
+SELECT UPPER('Pemrograman Database')
+-----------------------------------------
 
 
 /*
 e. Fungsi quote()
 ---------------------
+Berfungsi untuk mengapit suatu teks menggunakan tanda petik tunggal.
 
-
-
+Sebagai contoh, jika kita ingin membuat teks dengan proses INSERT dalam
+suatu prosedur/ fungsi yagn didefinisikan sendiri.
 */
+-- Contoh 1
+-----------------------------------------
+SET @STR = 'MySQL';
+SELECT @STR
+-----------------------------------------
+-- Query di atas akan mengembalikan teks berupa string MySQL (tanpa tanda kutip)
+
+-- Contoh 2
+-----------------------------------------
+SET @STR = qoute('MySQL');
+SELECT @STR;
+-----------------------------------------
+-- Query di atas akan mengembalikan teks berupa string 'MySQL' (dengan tanda kutip)
 
 
 /*
 f.  Fungsi replace()
 ----------------------
-
-
+Berfungsi untuk mengganti suatu karakter atau bagian teks tertentu.
+*/
+-----------------------------------------
+SELECT
+	REPLACE('Pemrograman Database',
+			'Database',
+			'MySQL');
+-----------------------------------------
+/*
+Query di atas akan mengganti substring 'Database' dengan string 'MySQL'.
 */
 
 
 /*
-G. Fungsu substring()
+G. Fungsi substring()
 ---------------------
-
+Digunakan untuk mengambil karakter atau bagian teks
+(dengan jumlah karakter tertentu) dari suatu teks.
+*/
+-----------------------------------
+SELECT
+	SUBSTRING('MySQL', 3, 3);
+-----------------------------------
+/*
+Query di atas akan menghasilkan teks 'SQL', di mana fungsi substring akan
+mengambil bagian teks sebanyak 3 karakter dari teks 'MySQL'
+dimulai dari karakter ke-3.
+*/
+-----------------------------------
+SELECT
+	SUBSTRING('MySQL', 1, 2);
+-----------------------------------
+/*
+Query di atas akan mengambil 2 karakter dari teks 'MySQL' dimulai dari
+karkter ke-1. Hasilnya adalah karakter 'My'.
 */
 
 
 /*
-
 7. Fungsi trim(), ltrim(), rifht()
-
+-----------------------------------
+Berfungsi untuk mengilangkan whitespace (karakter kosong/ spasi).
+Ini dilakukan untuk mengantisipasi jika seorang user/ operator memasukkan data
+yang secara tidak sadar memasukkan spasi sebelum maupun sesudah karakter,
+karena perbedaan karakter karena whitespace cukup berpengaruh pada
+hasil query.
+*/
+-- Contoh 1
+-----------------------------------
+SELECT
+	buku_isbn,
+	buku_judul
+FROM
+	buku
+WHERE
+	TRIM(penerbit_id) = 'PB06';
+-----------------------------------
+/*
+Jika ingin menghapus whitespace di sebelah kiri/ awal reim diganti dengan LTRIM()
+dan jika ingin menghapus whitespace di sebelah kanan/ akhir diganti dengan RTRIM().
 */
 
 
 /*
 3. Fungsi untuk Bilangan
 --------------------------
+Berikut beberapa fungsi amtematika yanag sering digunakan pada MySQL
 
+abs()		: Mengembalikan nilai mutlak dari n
+			  Misal : abs(-10); akan mengembalikan nilai 10
+
+round()		: Membulatkan bilangan desimal menjadi bilangan bulat
+			  Misal : round(3.45); akan mengembalikan nilai 3
+
+celling()	: Melakukan pembulatan ke atas ke bilangan terdekat
+			  Misal : ceiling(3.25); akan mengembalikan nilai 4
+
+floor()		: Melakukan pembulatan ke bawah ke bilangan terdekat
+			  Misal : floor(3.97); akan mengembalikan nilai 3
+
+mod(n, m)	: Disebut juga modulus, akan mengembalikan nilai hasil sisa
+			  n dibagi dengan m. Misal : mod(11,4); akan mengembalikan nilai 3,
+			  karena 11 dibagi 4 = 8 dan sisanya 3.
+			  Fungsi mod bisa ditulis langsung seperti contoh 11 mod 4;
+			  Untuk memperoleh hasil bagi bisa dengan cara 11 div 4
+
+power(n, m)	: Mengembalikan nilai n pangkat m
+			  Misal : power(10,2) sama dengan 10 pangkat 2, hasilnya 100
+
+sqrt(n)		: Mengembalikan akar pangkat dua dari n
+			  Misal : sqrt(4); akan mengembalikan nilai 2
+
+rand(n)		: Mengembalikan nilai acak (random) antar 0 dan 1
+			  Parameter n bersifat opsional (bisa disertakan, bis tidak)
 */
 
 
 /*
-4. Fungsi untuk Tanggak dan waktu
+4. Fungsi untuk Tanggal dan waktu
 ---------------------------------
+Fungsi ini biasa digunakan untuk mencatat kapan suatu transaksi dilakukan.
 
+Adapun daftar fungsinya sebagai berikut.
+
+1. now()
+----------
+Berfungsi untuk mengembalikan nilai tanggal dan waktu saat ini.
+Contoh : SELECT NOW();
+
+
+2. curdate()
+Berfungsi untuk mengembalikan tanggal saat ini.
+Contoh : SELECT curdate();
+
+3. curtime()
+Berfungsi untuk mengembalikan nilai waktu saat ini.
+Contoh : SELECT CURTIME();
+
+4. extract(day from tanggal)
+Berfungsi utnuk mengambil nilai hari dari suatu tanggal.
+Contoh : SELECT EXTRACT(day from '2022-05-5');
+
+5. extract(month from tanggal)
+Berfungsi untuk mengambil nilai bulan dari suatu tanggal.
 */
 
 
+
 /*
-5. Fungsi untuk Konversi tyoe (typecasting)
+5. Fungsi untuk Konversi type (typecasting)
 --------------------------------------------
 
 */
