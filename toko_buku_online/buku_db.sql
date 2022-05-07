@@ -1960,7 +1960,7 @@ Query di atas akan mengganti substring 'Database' dengan string 'MySQL'.
 
 
 /*
-G. Fungsi substring()
+g. Fungsi substring()
 ---------------------
 Digunakan untuk mengambil karakter atau bagian teks
 (dengan jumlah karakter tertentu) dari suatu teks.
@@ -1985,7 +1985,7 @@ karkter ke-1. Hasilnya adalah karakter 'My'.
 
 
 /*
-7. Fungsi trim(), ltrim(), rifht()
+h. Fungsi trim(), ltrim(), rifht()
 -----------------------------------
 Berfungsi untuk mengilangkan whitespace (karakter kosong/ spasi).
 Ini dilakukan untuk mengantisipasi jika seorang user/ operator memasukkan data
@@ -2049,43 +2049,332 @@ rand(n)		: Mengembalikan nilai acak (random) antar 0 dan 1
 Fungsi ini biasa digunakan untuk mencatat kapan suatu transaksi dilakukan.
 
 Adapun daftar fungsinya sebagai berikut.
-
-1. now()
-----------
-Berfungsi untuk mengembalikan nilai tanggal dan waktu saat ini.
-Contoh : SELECT NOW();
-
-
-2. curdate()
-Berfungsi untuk mengembalikan tanggal saat ini.
-Contoh : SELECT curdate();
-
-3. curtime()
-Berfungsi untuk mengembalikan nilai waktu saat ini.
-Contoh : SELECT CURTIME();
-
-4. extract(day from tanggal)
-Berfungsi utnuk mengambil nilai hari dari suatu tanggal.
-Contoh : SELECT EXTRACT(day from '2022-05-5');
-
-5. extract(month from tanggal)
-Berfungsi untuk mengambil nilai bulan dari suatu tanggal.
 */
 
+
+/*
+a. now()
+----------
+Berfungsi untuk mengembalikan nilai tanggal dan waktu saat ini.
+*/
+------------------
+SELECT now();
+------------------
+-- Menghasilkan 2022-05-07 13:16:48 (contoh)
+
+
+/*
+b. curdate()
+------------------
+Berfungsi untuk mengembalikan tanggal saat ini.
+*/
+------------------
+SELECT curdate();
+------------------
+-- Menghasilkan 2022-05-07 (contoh)
+
+
+/*
+c. curtime()
+------------------
+Berfungsi untuk mengembalikan nilai waktu saat ini.
+*/
+------------------
+SELECT curtime();
+------------------
+-- Menghasilkan  13:17:28 (contoh)
+
+
+/*
+d. extract(day from tanggal)
+------------------------------------
+Berfungsi utnuk mengambil nilai hari dari suatu tanggal.
+*/
+--------------------------------------
+SELECT extract(day from '2021-06-21');
+--------------------------------------
+-- Mengembalikan nilai 21
+
+
+/*
+e. extract(month from tanggal)
+------------------------------------
+Berfungsi untuk mengambil nilai bulan dari suatu tanggal.
+*/
+--------------------------------------
+SELECT extract(month from '2021-06-21');
+--------------------------------------
+-- Mengembalikan nilai 6
+
+
+/*
+f. extract(year from tanggal)
+------------------------------------
+Berfungsi untuk mengambil nilai tahun dari suatu tanggal.
+*/
+--------------------------------------
+SELECT extract(year from '2021-06-21');
+--------------------------------------
+-- Mengembalikan nilai 2021
+
+
+/*
+g. dayname(tanggal)
+------------------------------------
+Berfungsi untuk mengembalikan nama hari dari tanggal yang disertakan.
+*/
+--------------------------------------
+SELECT dayname('2021-06-21');
+--------------------------------------
+-- Menghasilkan 'Monday'
+
+
+/*
+h. date_format(tanggal, format)
+------------------------------------
+Berfungsi untuk mengembalikan format tanggal yang dikehendaki
+*/
+--------------------------------------
+SELECT date_format(now(), '%d/%m/%Y');
+--------------------------------------
+-- Menghasilkan 07/05/2022 (contoh)
+
+
+/*
+i. time_format(waktu, format)
+------------------------------------
+Mengembalikan format waktu yagn dikehendaki
+*/
+--------------------------------------
+SELECT time_format(now(), '%h:%i:%s');
+--------------------------------------
+-- Menghasilkan 01:14:50 (contoh)
 
 
 /*
 5. Fungsi untuk Konversi type (typecasting)
 --------------------------------------------
+Typecasting adalah proses memerankan suatu data dengan tipe lain tertentu.
 
+Proses typecasting tidak dapat diterapkan utnuk semua tipe data.
+
+Tipe data yang akan diperankan sebagai tipe lain harus cocok,
+semisal antara tipe data CHAR dicasting menjadi UNSIGNED.
+
+Untuk keperluan typecasting ada 2 opsi fungsi yang bisa digunakan,
+yaitu : cast() dan convert().
+
+Format:
+cast(ekspresi AS tipe);
+convert(ekspresi, tipe);
+*/
+-- Contoh
+----------------------------
+SELECT CONVERT('13', SIGNED);
+----------------------------
+/*
+Query di atas berfungsi memerankan teks '13' dalam tipe
+bilangan bulat tak bertanda (UNSIGNED).
+
+Berikut adalah tipe-tipe data yang bisa digunakan
+dalam fungsi cast() dan conver().
+1. BINARY
+2. CHAR
+3. DATE
+4. DATETIME
+5. SIGNED (INTEGER bertanda, bisa negatif)
+6. UNSIGNED (INTEGER tak bertanda, selalu positif)
 */
 
+
+/* ===================================== */
+/*                 BAB 12                */
+/* ------------------------------------- */
+/* 			Prosedur dan Fungsi	 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+/*
+Pendahuluan
+------------
+Prosedur dan Fungsi merupakan objek database yang berisi runtutan perintah untuk
+melaksanakan satu tugas khusus tertentu.
+
+Sekali dibuat, prosedur dan fungsi dapat digunakan secara berulang.
+
+Sama halnya dengan view, prosedur dan fungsi disimpan dalam satu database tertentu,
+maka jika database dihapus, prosedur dan fungsi di dalamnya juaga akan ikut terhapus.
+
+Prosedur dan fungsi yang disimpan dalam database juga disebut sebagai
+'stored procedure' dan 'stored function'.
+
+Prosedur dan fungsi juga sering disebut sebagai subprogram.
+*/
+
+
+/*
+Manfaat Prosedur dan Fungsi
+------------------------------------
+1. Sintaks menjadi lebih fleksibel
+	Kita bisa menulis kode logis di dalam prosedur ataupun fungsi
+	(bsia mengandung konstruksi pengulangan maupun percabangan)
+
+2. Memiliki kemampuan untuk menangani kesalahan (error)
+	Dengan prosedur maupun fungsi, kesalahan yang terjadi
+	pada saat eksekusi prosedur	atau fungsi dapat ditangani
+	dengan benar.
+
+3. Pembungkusan kode (code packaging and encapsulation)
+	Prosedur dan fungsi disimpan dalam server database. Dengan demikian,
+	kode hanya ditulis sekali namun bisa digunakan oleh banyak aplikasi klien.
+
+4. Mudah dipelihara
+	Karena prosedur dan fungsi disimpan di server database, maka suatu saat jika
+	terjadi perubahan proses dari sub-program tersebut, kita hanya mengubah sekali.
+*/
+
+
+/*
+Perbedaan Prosedur dan Fungsi
+------------------------------------
+* Perbedaan paling mendasar antara prosedur dan fungsi terletak pada peruntukannya.
+
+1. Prosedur tidak bisa mengembalikan nilai
+	Prosedur hanya melakukan suatu proses operasi tertentu.
+	Prosedur dieksekusi menggunakan perintah CALL.
+
+2. Fungsi adalah subprogram yang mengembalikan nilai
+	Cara mengeksekusinya dengan meletakkan nama fungsinya (beserta parameternya, jika ada)
+	Pemanggilan fungsi sama seperti penggunaan variabel d an kosntanta.
+
+3. Fungsi tidak dapat dieksekusi menggunakan perintah CALL
+	Begitupun sebaliknya, prosedur tidak bisa dieksekusi di dalam ekspresi.
+
+4. Parameter-parameter yang didefinisikan di dalam prosedur dapat bersifat sebagai
+	parameter masukan (input-only), parameter keluaran (output-only) maupun gabungan
+	dari keduanya (parameter masukan-keluaran).
+
+	Karena alasan tersebut, sebenarnya prosedur dapat mengembalikan nilai, asalkan nilai tersebut
+	ditampung ke dalam parameter keluaran. Fungsi hanya memiliki parameter keluaran.
+
+5. Karena fungsi merupakan subprogram yang mengembalikan nilai, maka saat pembuatannya
+	harus menggunakan klausa RETURNS di bagian kepala atau judul fungsi dan diikuti dengan
+	tipe data dari nilai yagn akan dikembalikan.
+
+	Di bagian akhir badan fungsi juga perlu menggunakan klausa RETURN untuk mengembalikan
+	nilai yang diproleh dari proses yang telah dilakukan oleh fungsi.
+
+	Klausa RETURNS dan RETURN tidak ditemukan saat mendeklarasikan prosedur.
+*/
+
+
+/*
+Membuat dan Mengeksekusi Prosedur
+------------------------------------
+Prosedur dapat memiliki satu atau lebih perintah yang dikumpulkan menjadi satu kelompok.
+Oleh karena itu kita perlu mengguanakn blok BEGIN-END.
+Setiap perintah dalam prosedur harus dipisahkan menggunakan tanda semicolon (;).
+*/
+
+-- Contoh Prosedur tanpa parameter
+------------------------------------
+DELIMITER //
+CREATE PROCEDURE select_penerbit()
+BEGIN
+	SELECT penerbit_nama
+	FROM penerbit
+	WHERE penerbit_id = 'PB06';
+END;
+//
+------------------------------------
+-- Berikut cara mengeksekusi prosedur 'select_penerbit'
+------------------------------------
+CALL select_penerbit(); //
+------------------------------------
+-- Prosedur tersebut akan menampilkan penerbit dari tabel penerbit dengan kode 'PB06'
+
+
+-- Contoh Prosedur yang menggunakan parameter
+----------------------------------------------
+DELIMITER //
+CREATE PROCEDURE insert_penerbit(id char(4), nama varchar(50))
+BEGIN
+	INSERT INTO penerbit (penerbit_id, penerbit_nama)
+	VALUES (id, nama);
+END
+//
+----------------------------------------------
+
+-- Untuk mengeksekusi prosedur tersebut gunakan query berikut
+----------------------------------------------
+CALL insert_penerbit('PB10', 'Sinar Terang'); //
+----------------------------------------------
+
+-- Untuk mengecek hasilnya gunakan query berikut
+----------------------------------------------
+SELECT * FROM penerbit;
+----------------------------------------------
+/*
+Baris data terakhir merupakan hasil insert
+yang dilakukan oleh prosoedur insert_penerbit().
+*/
+
+
+/*
+Membuat dan Mengeksekusi Fungsi
+------------------------------------
+*/
+
+
+/*
+Menghapus Prosedur dan Fungsi
+------------------------------------
+*/
+
+
+/*
+Menampilkan daftar Prosedur dan Fungsi dalam database
+------------------------------------------------------------
+*/
+
+
+/*
+Hak Akses untuk bekerja dengan Prosedur dan Fungsi
+-----------------------------------------------------------
+*/
+
+
+/*
+Variabel di dalam Prosedur dan Fungsi
+------------------------------------------------
+*/
+
+
+/*
+Pemilihan dalam Prosedur dan Fungsi
+------------------------------------
+*/
+
+
+-- Perintah IF
+-- Perintah CASE
+
+
+/*
+Pengulangan dalam Prosedur dan Fungsi
+---------------------------------------
+*/
+
+-- Perintah LOOP
+-- Perintah WHILE
+-- Perintah REPEAT
+-- Perintah LEAVE dan ITERATE
 
 
 -- 	============================
 		To be Continued
 -- 	============================
--- Operator dan Fungsi
 -- Mendefinisikan Prosedur dan Fungsi
 -- Trigger
 -- Ekspor dan Impor Data
