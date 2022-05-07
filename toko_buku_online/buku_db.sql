@@ -2324,30 +2324,182 @@ yang dilakukan oleh prosoedur insert_penerbit().
 /*
 Membuat dan Mengeksekusi Fungsi
 ------------------------------------
-*/
+Sintaks untuk membuat funugsi berbeda dengan prosedur, yaitu menggunakan
+CREATE FNCTION, selain itu juga perlu menambahkan RETURNS untuk mendefinisikan
+tipe data kembalian serta diakhiri dengan RETURN untuk mengembalikan nilai
 
+Format Pembuatan Function sebagai berikut
+-----------------------------------------------------
+CREATE FUNCTION <nama_fungsi> ([daftar parameter])
+RETURNS <tipe data>
+BEGIN
+	[daftar deklarasi variabel]
+	<perintah 1>;
+	<perintah 2>;
+	dst...
+	RETURN <nilai kembalian>;
+END;
+-----------------------------------------------------
+*/
+------------------------------------
+DELIMITER //
+CREATE FUNCTION harga_buku(isbn CHAR(13))
+	RETURNS DECIMAL(10,0) DETERMINISTIC
+BEGIN
+
+	-- Mendeklarasikan variabel
+	DECLARE harga DECIMAL(10,0);
+
+	-- Seleksi data dan menampung hasilnya ke dalam variabel
+	SELECT buku_harga INTO harga
+	FROM buku
+	WHERE buku_isbn = isbn;
+
+	-- Mengembalikan nilai hasil proses
+	RETURN harga;
+
+END;
+//
+------------------------------------
+
+-- Kita bisa mengeksekusi fungsi tersebut dengan query berikut
+------------------------------------
+SELECT harga_buku('222-34222-1-0');
+------------------------------------
+
+-- Untuk mengganti judul kolom, kita bisa menggunakan alias
+------------------------------------
+SELECT harga_buku('222-34222-1-0') AS 'Harga Buku';
+------------------------------------
+
+-- Fungsi juga bisa langsung dieksekusi di dalam ekspresi
+------------------------------------
+SELECT harga_buku('222-34222-1-0') * 2 AS 'Harga Buku';
+------------------------------------
+/*
+Pada contoh di atas fungsi langsung digabungkan dengan ekspresi perkalian
+Kesimpulannya, fungsi bisa digunakan sebagaimana variabel normal.
+*/
 
 /*
 Menghapus Prosedur dan Fungsi
 ------------------------------------
 */
 
+-- Menghapus Prosedur
+------------------------------------
+DROP PROCEDURE select_penerbit;
+------------------------------------
+
+-- Menghapus Fungsi
+------------------------------------
+DROP FUNCTION harga_buku;
+------------------------------------
+
 
 /*
 Menampilkan daftar Prosedur dan Fungsi dalam database
 ------------------------------------------------------------
+Pada saat tertentu terkadang kita ingin mengetahui daftar prosedur dan fungsi
+yang terdapat dalam database kita, maka berikut query yang bisa kita jalankan.
+*/
+--------------------------------------
+SHOW PROCEDURE STATUS;
+--------------------------------------
+/*
+Query di atas berfungsi untuk menampilkan seluruh prosedur yang tersimpan
+di dalam database beserta properti dan informasi metadata lainnya.
+*/
+
+--------------------------------------
+SHOW PROCEDURE STATUS
+WHERE Name Like 'insert%';
+--------------------------------------
+/*
+Query di atas berfungsi untuk menampilkan prosedur berdasarkan filter
+yang dilakukan dengan klausa LIKE.
+*/
+
+--------------------------------------
+SHOW FUNCTION STATUS;
+--------------------------------------
+/*
+Query di atas berfungsi untuk menampilkan seluruh fungsi yang tersimpan
+di dalam database beserta properti dan informasi metadata lainnya.
+*/
+
+--------------------------------------
+SHOW FUNCTION STATUS
+WHERE Name Like 'harga%';
+--------------------------------------
+/*
+Query di atas berfungsi untuk menampilkan fungsi berdasarkan filter
+yang dilakukan dengan klausa LIKE.
 */
 
 
 /*
 Hak Akses untuk bekerja dengan Prosedur dan Fungsi
 -----------------------------------------------------------
+1. Untuk membuat prosedur maupun fungsi kita memerlukan hak akses
+	CREATE ROUTINE
+
+2. Untuk mengeksekusi prosedur maupun fungsi kita memerlukan akses
+	EXECUTE
+
+3. Untuk mengubah prosedur maupun fungsi kita perlu memiliki akses
+	ALTER ROUTINE
 */
 
 
 /*
 Variabel di dalam Prosedur dan Fungsi
 ------------------------------------------------
+Untuk membuat satu variabel atau lebih di dalam prosedur maupun fungsi
+kita bisa menggunakan query DECLARE diikuti nama variable dan tipe data
+
+Format 	:
+DECLARE <nama_variable> <tipe_data>;
+*/
+-- Contoh 	:
+-----------------------------
+DECLARE harga DECIMAL(10,0);
+-----------------------------
+
+/*
+Pada contoh di atas, kita mendeklarasikan variabel harga dengan lebar data 10.
+
+DECLARE harus dimasukkan ke dalam blok BEGIN-END
+
+Untuk proses penginisialisasi variable bisa menggunakan SET untuk mengisi
+nilai awal sebuah variabel.
+*/
+
+-- Contoh:
+-----------------------------
+DECLARE harga DECIMAL(10,0);
+SET harga = 0;
+-----------------------------
+/*
+Untuk menampung suatu nilai yang diambil dari tabel database
+bisa menggunakan query INTO.
+*/
+
+-- Contoh:
+---------------------------------
+BEGIN
+	...
+	SELECT buku_harga INTO harga
+	FROM
+		buku
+	WHERE
+		buku_isbn = isbn;
+	...
+END;
+---------------------------------
+/*
+Pada contoh query di atas nilai yang diambil menggunakan query SELECT
+dimasukkan ke dalam variabel harga dengan query INTO.
 */
 
 
