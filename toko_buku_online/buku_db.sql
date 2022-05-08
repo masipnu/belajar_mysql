@@ -2841,10 +2841,419 @@ CALL tampilkan_bil_genap(50); //
 
 
 
+/* ===================================== */
+/*                	BAB 13               */
+/* ------------------------------------- */
+/* 					Trigger		 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+/*
+Pendahuluan
+------------
+Trigger adalah objek di dalam database yang berasosiasi dengan suatu tabel.
+
+Trigger akan diaktivasi ketika tabel tersebut dikenai event tertentu.
+
+Event yang dimaksud adalah suatu kejadian yang menimpa suatu tabel, bisa berupa
+penambahan, perubahan maupun penghapusan data (insert, update, delete).
+*/
+
+-- Untuk persiapan, kita buat tabel baru
+-----------------------------------------
+CREATE TABLE histori_buku(
+	buku_isbn CHAR(13),
+	buku_judul VARCHAR(75),
+	penerbit_id CHAR(4),
+	buku_tglterbit DATE,
+	buku_jmlhalaman INT,
+	buku_deskripsi TEXT,
+	buku_harga DECIMAL(10,0),
+	aksi VARCHAR(6),
+	aksi_tgl DATE
+);
+-----------------------------------------
+/*
+Struktur tabel tersebut sama dengan tabel 'buku', yang membedakan adalah
+adanya penambahan kolom 'aksi' dan kolom 'aksi_tgl' untuk mencatat perubahan tabel.
+*/
+
+/*
+Alasan Menggunakan Trigger
+---------------------------
+Trigger berfungsi untuk mengeksekusi satu atau sekumpulan perintah SQL secara otomatis
+ketika kita menambah, mengubah maupun menghapus baris data di dalam suatu tabel.
+
+Karena hal tersebut, pendefinisian trigger perlu ditanam atau diasosiasikan dengan
+tabel tertentu.
+
+Berikut beberapa manfaat tabel adalah:
+
+1. Trigger dapat memvalidasi data yang akan dimasukkan maupun yang akan digunakan
+	untuk melakukan perubahan.
+
+2. Trigger dapat memperoleh nilai lama dari baris data yagn dihapus atau diubah
+	(misalnyua untuk keperluan pencatatan histori data dari suatu tabel).
+
+3. Trigger dapat mengubah nilai kolom pada tabel lain.
+
+Selain itu, trigger juga dapat meringankan kdoe di bagian aplikasi atau 'stored procedure'
+yang dikembangkan.
+
+Dengan adanya trigger, kita tidak perlu menulis kode program di dalam aplikasi
+untuk melakukan proses validasi data.
+*/
+
+/*
+Konsep Trigger
+---------------
+- Trigger adalah objek database yang berisi kumpulan perintah SQL yang akan dieksekusi
+atau diaktivasi ketika suatu event terjadi.
+
+- Dalam satu database kita dapat mendefinisikan lebih dari satu trigger. Setiap trigger
+harus memiliki nama yang unik (berbeda antara satu trigger dengan trigger yang lain).
+
+- Trigger harus berasosiasi dengan tabel tertentu sebagai pemicu trigger untuk menentukan
+kapan trigger bersangkutan akan dieksekusi.
+
+- Trigger memiliki event :
+	BEFORE INSERT
+	AFTER INSERT
+	BEFORE UPDATE
+	AFTER UPDATE
+	BEFORE DELETE
+	AFTER DELETE
+
+- Trigger memiliki referensi : NEW dan OLD
+*/
+
+/*
+Daftar Event Untuk Aktivasi Trigger
+-----------------------------------
+Event adalah peristiwa/ kejadian yang menunjukkan kapan suatu trigger akan diaktivasi.
+
+Sebagai contoh, jika kita mendefinisikan trigger pada tabel buku dengan event AFTER INSERT,
+maka trigger tersebut akan diaktivasi setiap kali user melakukan penambahan data pada
+tabel buku.
+
+Berikut daftar event untuk aktivasi trigger:
+- BEFORE INSERT 	: Trigger diaktivasi sebelum data ditambahkan ke dalam tabel
+- AFTER INSERT 		: Trigger diaktivasi setelah data ditambahkan ke dalam tabel
+- BEFORE UPDATE 	: Trigger diaktivasi sebelum data dalam suatu tabel diubah
+- AFTER UPDATE 		: Trigger diaktivasi setelah data dalam suatu tabel diubah
+- BEFORE DELETE 	: Trigger diaktivasi sebelum data dalam suatu tabel dihapus
+- AFTER DELETE 		: Trigger diaktivasi setelah data dalam suatu tabel dihapus
+*/
+
+/*
+Membuat Trigger
+---------------
+Format untuk pembuatan trigger sebagai berikut
+-------------------------------
+CREATE TRIGGER <nama trigger>
+{BEFORE | AFTER}
+{INSERT | UPDATE | DELETE}
+ON <nama tabel>
+FOR EACH ROW
+BEGIN
+	<badan trigger>
+END
+-------------------------------
+*/
+-- Contoh Pembuatan Trigger
+-------------------------------
+DELIMITER $$
+CREATE TRIGGER tr_ai_buku
+AFTER INSERT
+ON buku
+FOR EACH ROW
+BEGIN
+	INSERT INTO histori_buku VALUES (
+		NEW.buku_isbn,
+		NEW.buku_judul,
+		NEW.penerbit_id,
+		NEW.buku_tglterbit,
+		NEW.buku_jmlhalaman,
+		NEW.buku_deskripsi,
+		NEW.buku_harga,
+		'INSERT',
+		CURRENT_DATE()
+		);
+END $$
+-------------------------------
+/*
+Query di atas akan membuat trigger baru dengan nama 'tr_ai_buku'
+
+Trigger akan diaktivasi setiap kali ada penambahan data pada tabel 'buku'
+
+Proses yang akan dieksekusi adalah setiap ada penambahan data pada tabel buku
+maka semua nilai baru dari setiap kolom akan dimasukkan juga ke dalam tabel
+'histori_buku' dan ditambah aksi 'INSERT' dan tanggal aksi.
+
+Pengambilan nilai yagn baru saja ditambahkan dengan perintah 'NEW.' diikuti nama kolom.
+
+Perintah DELIMITER $$ berfungsi untuk menentukan bahwa pembatas akhir kode trigger
+adalah diakhiri dengan tanda $$
+
+Tanda DELIMITER bisa diganti dengan tanda lain, asal tidak digunakan di dalam query,
+semisal #, // dsb.
+*/
+
+/*
+Memeriksa Pengaruh Trigger
+---------------------------
+Untuk mengetes apakah trigger bisa berjalan sesuai, kita jalankan query berikut,
+yaitu penambahan row data pada tabel buku
+*/
+-- Menambahkan data ke tabel buku
+-------------------------------
+INSERT INTO buku VALUES(
+'999-11555-2-2',
+'Microsoft Excell',
+'PB04',
+'2009/02/07',
+200,
+NULL,
+60000
+);
+-------------------------------
+
+-- Mengecek penambahan data pada tabel 'histori_buku'
+-------------------------------
+SELECT * FROM histori_buku;
+-------------------------------
+
+/*
+Referensi Trigger
+-----------------
+Referensi NEW dan OLD berfungsi untuk mengambil nilai-nilai yang dimasukkan ke dalam
+tabel (melalui perintah INSERT), nilai-nilai yagn akan digunakan untuk mengubah data
+(melalui perintah UPDATE) atau nilai-nilai dari suatu baris data yang telah dihapus
+(melalui perintah DELETE).
+
+3 hal penting yang harus diketahui ketika bekerja dengan trigger:
+------------------------------------------------------------------
+1. Pada saat mengeksekusi perintah INSERT, kita hanya memiliki referensi NEW,
+yang berfungsi untuk menampung nilai-nilai kolom dari baris data baru yang akan dimasukkan
+
+2. Pada saat mengeksekusi perintah UPDATE, kita memiliki referensi NEW dan OLD.
+Referensi NEW berfungsi untuk menampung nilai-nilai kolom yang akan digunakan untuk melakukan
+perubahan, sedangkan OLD berfungsi untuk menampung nilai-nilai lama (nilai sebelum diubah)
+pada semua kolom yang ada di dalam tabel bersangkutan.
+
+3. Pada saat mengeksekusi perintah DELETE, kita hanya memiliki referensi OLD,
+yang berfungsi untuk menampung nilai-nilai kolom dari baris data yang dihapus.
+*/
+
+/*
+Menghapus Trigger
+-----------------
+Format menghapus trigger :
+-----------------------------------------------
+DROP TRIGGER [<nama database>].<nama trigger>;
+-----------------------------------------------
+*/
+-- Contoh menghapus trigger
+-----------------------------------------------
+DROP TRIGGER buku_db.tr_ai_buku;
+-----------------------------------------------
+-- atau bisa juga langsung
+-----------------------------------------------
+DROP TRIGGER tr_ai_buku;
+-----------------------------------------------
+
+/*
+Hak Akses yang diperlukan untuk bekerja dengan Trigger
+-------------------------------------------------------
+Untuk membuat dan menghapus trigger di dalam database, seorang user memerlukan
+hak akses SUPER.
+
+Jika di dalam trigger menggunakan referensi NEW dan OLD, maka perlu memiliki hak
+akses tambahan yaitu:
+
+- UPDATE
+Untuk dapat mengisi nilai kolo dengan perintah SET NEW.<nama kolom> = <nilai>
+
+- SELECT
+Untuk bisa menggunakan NEW.<nama kolom>
+*/
+
+/*
+Batasan Trigger
+----------------
+1. Kita tidak dapat menggunakan perintah CALL (perintah untuk mengeksekusi prosedur)
+
+2. Kita tidak dapat melakukan transaksi (semisal COMMIT dan ROLLBACK)
+
+3. Kita tidak dapat membuat trigger untuk tabel temporari
+*/
+
+/*
+Implementasi Trigger
+--------------------
+Berikut contoh pembuatan trigger dengan beberapa kasus berbeda.
+*/
+
+-- Trigger AFTER UPDATE
+-----------------------------------------
+DELIMITER $$
+CREATE TRIGGER tr_au_buku
+AFTER UPDATE
+ON buku
+FOR EACH ROW
+BEGIN
+	DECLARE isbn CHAR(13);
+	DECLARE judul VARCHAR(75);
+	DECLARE idpenerbit CHAR(4);
+	DECLARE tglterbit DATE;
+	DECLARE jmlhalaman INT;
+	DECLARE deskripsi TEXT;
+	DECLARE harga DECIMAL(10,0);
+
+	IF NEW.buku_isbn IS NULL THEN
+		SET isbn = OLD.buku_isbn;
+	ELSE
+		SET isbn = NEW.buku_isbn;
+	END IF;
+
+	IF NEW.buku_judul IS NULL THEN
+		SET judul = OLD.buku_judul;
+	ELSE
+		SET judul = NEW.buku_judul;
+	END IF;
+
+	IF NEW.penerbit_id IS NULL THEN
+		SET idpenerbit = OLD.penerbit_id;
+	ELSE
+		SET idpenerbit = NEW.penerbit_id;
+	END IF;
+
+	IF NEW.buku_tglterbit IS NULL THEN
+		SET tglterbit = OLD.buku_tglterbit;
+	ELSE
+		SET tglterbit = NEW.buku_tglterbit;
+	END IF;
+
+	IF NEW.buku_jmlhalaman IS NULL THEN
+		SET jmlhalaman = OLD.buku_jmlhalaman;
+	ELSE
+		SET jmlhalaman = NEW.buku_jmlhalaman;
+	END IF;
+
+	IF NEW.buku_deskripsi IS NULL THEN
+		SET deskripsi = OLD.buku_deskripsi;
+	ELSE
+		SET deskripsi = NEW.buku_deskripsi;
+	END IF;
+
+	IF NEW.buku_harga IS NULL THEN
+		SET harga = OLD.buku_harga;
+	ELSE
+		SET harga = NEW.buku_harga;
+	END IF;
+
+	INSERT INTO histori_buku VALUES(
+		isbn,
+		judul,
+		idpenerbit,
+		tglterbit,
+		jmlhalaman,
+		deskripsi,
+		harga,
+		'UPDATE',
+		CURRENT_DATE()
+		);
+END $$
+-----------------------------------------
+-- Trigger di atas akan diaktivasi ketika kita melakukan perubahan data pada tabel buku
+-- Kita bisa tes dengan menjalankan query berikut untuk mengubah data
+-----------------------------------------
+UPDATE buku
+	SET penerbit_id = 'PB05',
+	buku_jmlhalaman = '254',
+	buku_harga = 64000
+WHERE
+	buku_isbn = '999-11555-2-2';
+-----------------------------------------
+
+
+-- Trigger AFTER DELETE
+-----------------------------------------
+DELIMITER $$
+CREATE TRIGGER tr_ad_buku
+AFTER DELETE
+ON buku
+FOR EACH ROW
+BEGIN
+	INSERT INTO histori_buku VALUES(
+		OLD.buku_isbn,
+		OLD.buku_judul,
+		OLD.penerbit_id,
+		OLD.buku_tglterbit,
+		OLD.buku_jmlhalaman,
+		OLD.buku_deskripsi,
+		OLD.buku_harga,
+		'DELETE',
+		CURRENT_DATE()
+		);
+END $$
+-----------------------------------------
+-- Untuk mengetes triger di atas kita coba hapus salah satu data dengan query berikut
+-----------------------------------------
+DELETE FROM buku
+WHERE
+	buku_isbn = '999-11555-2-2';
+-----------------------------------------
+
+-- Trigger Validasi Data
+/*
+Kita bisa membuat sebuah trigger untuk memvalidasi data yang dimasukkan.
+
+Sebagai contoh, kita ingin memastikan bahwa nilai yang dimasukkan ke dalam kolom 'buku_jmlhalaman'
+harus lebih besar dari 149. Jika nilainya sama atau lebih kecil, maka server MySQL
+akan menolak untuk memasukkan baris data tersebut.
+*/
+-- Trigger BEFORE INSERT
+--------------------------
+DELIMITER $$
+CREATE TRIGGER tr_bi_buku
+BEFORE INSERT
+on buku
+FOR EACH ROW
+BEGIN
+	IF NEW.buku_jmlhalaman <= 149 THEN
+	SIGNAL SQLSTATE '45000'
+		SET MESSAGE_TEXT = 'Nilai jumlah halaman salah.';
+	END IF;
+END $$
+--------------------------
+/*
+Untuk menguji trigger di atas kita biosa mencoba memasukkan data ke dalam tabel buku
+dengan jumlah halaman yang tidak sesuai.
+*/
+-- Tes menambahkan data
+--------------------------
+INSERT INTO buku VALUES(
+	'999-11555-2-2',
+	'Microsoft Publisher',
+	'PB04',
+	'2021/02/07',
+	100,
+	NULL,
+	60000
+);
+--------------------------
+/*
+Server MySQL akan menolak untuk memasukkan data tersebut ke dalam tabel buku
+dan menampilkan pesan error sebagaimana yang telah didefinisikan di dalam trigger.
+*/
+
+
+
 -- 	============================
 		To be Continued
 -- 	============================
--- Trigger
 -- Ekspor dan Impor Data
 -- MySQL dan Python
 -- MySQL dan PHP
