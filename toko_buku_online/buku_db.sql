@@ -2634,18 +2634,216 @@ FROM
 /*
 Pengulangan dalam Prosedur dan Fungsi
 ---------------------------------------
+Satu atau beberapa aksi dapat dieksekusi secara berulang menggunakan blok perulangan.
+
+Di antara blok perulangan yang ada di dalam MySQL adalah:
+1. LOOP
+2. WHILE
+3. REPEAT
 */
 
 -- Perintah LOOP
+------------------
+/*
+Loop adalah bentuk perulangan yang tidak memiliki kondisi, hal ini berarti
+proses perulangan akan dijalankan secara terus menerus selama tidak ada
+perintah untuk menghentikan proses perulangan.
+
+Di dalam MySQL menyediakan perintah LEAVE untuk mengehentikan perulangan tersebut.
+
+Berikut format Loop
+--------------------
+LOOP
+	<daftar aksi>;
+END LOOP
+--------------------
+*/
+
+-- Contoh LOOP
+------------------------------------------------------
+DELIMITER //
+CREATE FUNCTION jumlahkan(n INT)
+	RETURNS INT(11) DETERMINISTIC
+BEGIN
+	DECLARE i INT DEFAULT 0;
+	DECLARE total INT DEFAULT 0;
+	myloop: LOOP
+		SET i = i + 1;
+		IF i > n THEN
+			LEAVE myloop; -- Keluar dari perulangan
+		END IF;
+		SET total = total + i;
+	END LOOP myloop;
+
+	RETURN total;
+END
+//
+------------------------------------------------------
+/*
+Pada query di atas kita memberi label pada badan perulangan dengan nama 'myloop'.
+
+Fungsi yang dibuat di atas berguna untuk menjumlahkan n buah bilangan positif pertama.
+Sebagai contoh, jika n bernilai 5 maka hasilnya adalah 15 (berasal dari 1+2+3+4+5).
+*/
+-- Untuk mengeksekusi fungsi di atas, kita dapat menulis query berikut.
+------------------------
+SELECT jumlahkan(5); //
+------------------------
+
+
 -- Perintah WHILE
+------------------
+/*
+Perintah WHILE merupakan bentuk perintah untuk melakukan perulangan dengan cara memeriksa
+kondisi tertentu.
+
+Dalam perintan WHILE, kondisi tertentu akan ditempatkan di awal blok.
+
+Dengan demikian, aksi yang berada di dalam badan perulangan hanya dieksekusi jika
+kondisi tersebut terpenuhi (bernilai benar).
+
+Jika kondisi bernilai salah, maka blok perulangan akan diabaikan dan proses eksekusi
+dilanjutkan ke aksi setelah blok perulangan (jika ada).
+
+Berikut format perulangan WHIlE
+-----------------------------
+WHILE <kondisi>
+	<daftar aksi>;
+END WHILE
+-----------------------------
+*/
+-- Contoh Perulangan WHILE
+------------------------------------------
+DELIMITER //
+CREATE FUNCTION jumlahkan_while(n INT)
+	RETURNS INT(11) DETERMINISTIC
+BEGIN
+	DECLARE i INT DEFAULT 1;
+	DECLARE total INT DEFAULT 0;
+	WHILE (i <= n) DO
+		SET total = total + i;
+		SET i = i + 1;
+	END WHILE;
+
+	RETURN total;
+END;
+//
+------------------------------------------
+/*
+Fungsi di atas merupakan modifikasi dari fungsi sebelumnya, yaitu LOOP.
+Namun dimodifikasi menggunakan WHILE.
+
+Untuk mengeksekusi fungsi WHILE tersebut kita gunakan contoh query berikut.
+*/
+-----------------------------------------
+SELECT jumlahkan_while(5); //
+-----------------------------------------
+
+
 -- Perintah REPEAT
+-------------------
+/*
+Perintah REPEAT sebenarnya hampir sama dengan WHILE, hanya saja berbeda pada
+penempatan kondisinya saja.
+
+Jika WHILE kondisinya ditempatkan di awal blok perulangan, tetapi untuk REPEAT
+kondisi ditempatkan di akhir blok perulangan.
+
+Dengan demikian, dalam perintah REPEAT aksi minimal akan dieksekusi satu kali.
+
+Berikut format penulisan perintah REPEAT
+-----------------------
+REPEAT
+	<daftar aksi>;
+UNTIL <kondisi>
+END REPEAT
+-----------------------
+*/
+-- Contoh perintah REPEAT
+---------------------------------------
+DELIMITER //
+CREATE FUNCTION jumlahkan_repeat(n INT)
+	RETURNS INT(11) DETERMINISTIC
+BEGIN
+	DECLARE i INT DEFAULT 1;
+	DECLARE total INT DEFAULT 0;
+	REPEAT
+		SET total = total + i;
+		SET i = i + 1;
+	UNTIL (i > n)
+	END  REPEAT;
+	RETURN total;
+END;
+//
+---------------------------------------
+-- Kita bisa mengeksekusi fungsi di atas dengan query
+---------------------------------------
+SELECT jumlahkan_repeat(5); //
+---------------------------------------
+-- Cara kerja fungsi REPEAT tersebut sama dengan WHILE dan LOOP sebelumnya
+
+
 -- Perintah LEAVE dan ITERATE
+------------------------------
+/*
+Proses perulangan dapat dipaksa untuk berhenti atau untuk diteruskan menggunakan
+pernyataan loncat (jump statement).
+
+Perintah untuk menghentikan perulangan adalah LEAVE, sedangkan untuk melanjutkan
+perulangan adalah ITERATE.
+
+Contoh penggunaan LEAVE sudah kita contohkan dalam penggunaan LOOP.
+
+Berikut contoh penggunaan keduanya.
+*/
+-- Contoh penggunaan LEAVE dan ITERATE
+------------------------------------
+DELIMITER //
+CREATE PROCEDURE tampilkan_bil_genap(n INT)
+BEGIN
+
+	DECLARE i INT DEFAULT 0;
+	DECLARE str VARCHAR(200) DEFAULT '';
+
+	next: LOOP
+
+		SET i = i + 1;
+		IF (i mod 2 = 1) THEN
+			ITERATE next;
+		END IF;
+
+		IF (i > n) THEN
+			LEAVE next;
+		END IF;
+
+		SET str = CONCAT(str, CONVERT(i, CHAR), ' ');
+
+	END LOOP next;
+
+	SELECT str AS 'Bilangan Genap';
+
+END;
+//
+------------------------------------
+/*
+Pada kode di atas kita membuat sebuat prosedur yang dapat menampilkan bilangan genap
+yang terdapat di antara bilangan 1 dan n.
+
+Nilai n dittntukan saat pemanggilan prosedur.
+
+Untuk memriksa hasil dari prosedur di atas jalankan query berikut.
+*/
+-- Eksekusi prosedur 'tampilkan_bil_genap'
+------------------------------------------
+CALL tampilkan_bil_genap(50); //
+------------------------------------------
+-- Query di atas akan menampilkan seluruh bilangan genap antara 1 s.d. 50
+
 
 
 -- 	============================
 		To be Continued
 -- 	============================
--- Mendefinisikan Prosedur dan Fungsi
 -- Trigger
 -- Ekspor dan Impor Data
 -- MySQL dan Python
