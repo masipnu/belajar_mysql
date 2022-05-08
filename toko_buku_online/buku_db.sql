@@ -2506,11 +2506,129 @@ dimasukkan ke dalam variabel harga dengan query INTO.
 /*
 Pemilihan dalam Prosedur dan Fungsi
 ------------------------------------
+Untuk menjalankan sebuah aksi di dalam blok kode, MySQL menyediakan
+perintah IF dan CASE.
+
+Aksi akan dijalankan jika kondisi yang didefinisikan bernilai true.
 */
 
+/*
+-- Perintah IF (Jika)
+---------------------------------
+Format 1 (terdiri dari 1 kondisi) 
+-------------------
+IF <kondisi> THEN
+	<daftar aksi>
+END IF
+-------------------
 
--- Perintah IF
+Format 2 (Terdiri dari beberapa kondisi)
+--------------------------------
+IF <kondisi1> THEN
+	<daftar aksi1>
+[ELSEIF <kondisi2> THEN]
+	<daftar aksi2>
+[ELSE <daftar aksi3>]
+END IF
+--------------------------------
+Pada format 2, jika kondisi 1 bernilai benar, maka <daftar aksi 1> akan dijalankan,
+jika tidak, apabila kondisi bernilai benar, maka <daftar aksi 2> yang akan dijalankan,
+jika kondisi 1 dan kondisi 2 bernilai salah, maka daftar aksi 3 yang akan dijalankan.
+*/
+-- Contoh
+----------------------------------------------
+DELIMITER //
+CREATE FUNCTION get_penerbit(isbn CHAR(13))
+
+	RETURNS VARCHAR(50) DETERMINISTIC
+
+BEGIN
+
+	DECLARE namapenerbit VARCHAR(50);
+	SELECT b.penerbit_nama INTO namapenerbit
+	FROM
+		buku a, penerbit b
+	WHERE
+		a.penerbit_id = b.penerbit_id AND
+		a.buku_isbn = isbn;
+
+	IF namapenerbit IS NULL THEN
+		SET namapenerbit = '';
+	END IF;
+
+	RETURN namapenerbit;
+END;
+//
+----------------------------------------------
+/*
+Pada fungsi IF di atas, jika nama penerbitnya tidak ada,
+maka akan dikembalikan berupa karakter kosong.
+*/
+
+-- Untuk mengeksekusi fungsi di atas gunakan query berikut
+----------------------------------------------
+SELECT get_penerbit('222-34222-1-0'); //
+----------------------------------------------
+
+
 -- Perintah CASE
+-----------------
+/*
+-- Format 
+---------------------------------------
+CASE <ekspresi>
+	WHEN <nilai 1> THEN <daftar aksi 1>;
+	[WHEN <nilai 2> THEN <daftar aksi 2>;]
+	...
+	[ELSE] <daftar aksi 3>
+END CASE
+---------------------------------------
+*/
+
+-- Contoh penggunaan CASE
+---------------------------------------
+DELIMITER //
+CREATE FUNCTION ubah_format_tanggal(tanggal DATE)
+	RETURNS VARCHAR(30) DETERMINISTIC
+BEGIN
+	DECLARE dd INT(2);
+	DECLARE mm INT(2);
+	DECLARE yy INT(4);
+	DECLARE bulan VARCHAR(9);
+	SET dd = extract(day FROM tanggal);
+	SET mm = extract(month from tanggal);
+	SET yy = extract(year FROM tanggal);
+
+	CASE mm
+		WHEN 1 THEN SET bulan = 'Januari';
+		WHEN 2 THEN SET bulan = 'Februari';
+		WHEN 3 THEN SET bulan = 'Maret';
+		WHEN 4 THEN SET bulan = 'April';
+		WHEN 5 THEN SET bulan = 'Mei';
+		WHEN 6 THEN SET bulan = 'Juni';
+		WHEN 7 THEN SET bulan = 'Juli';
+		WHEN 8 THEN SET bulan = 'Agustus';
+		WHEN 9 THEN SET bulan = 'September';
+		WHEN 10 THEN SET bulan = 'Oktober';
+		WHEN 11 THEN SET bulan = 'November';
+		WHEN 12 THEN SET bulan = 'Desember';
+	END CASE;
+
+	RETURN CONCAT(
+			CONVERT(dd, CHAR),' ',bulan,' ',CONVERT(yy, CHAR));
+END;
+//
+---------------------------------------
+
+-- Untuk mengeksekusi fungsi di atas bisa dimasukkan dalam query select berikut
+---------------------------------------
+SELECT
+	buku_judul AS 'Judul',
+	ubah_format_tanggal(buku_tglterbit) AS 'Tanggal Terbit',
+	buku_harga AS 'Harga'
+FROM
+	buku; //
+---------------------------------------
 
 
 /*
