@@ -3229,7 +3229,7 @@ BEGIN
 END $$
 --------------------------
 /*
-Untuk menguji trigger di atas kita biosa mencoba memasukkan data ke dalam tabel buku
+Untuk menguji trigger di atas kita bisa mencoba memasukkan data ke dalam tabel buku
 dengan jumlah halaman yang tidak sesuai.
 */
 -- Tes menambahkan data
@@ -3251,10 +3251,247 @@ dan menampilkan pesan error sebagaimana yang telah didefinisikan di dalam trigge
 
 
 
+/* ===================================== */
+/*                	BAB 14               */
+/* ------------------------------------- */
+/* 			Ekspor dan Impor Data 		 */
+/* ------------------------------------- */
+/* 										 */
+/* ===================================== */
+
+
+/*
+Pendahuluan
+------------
+Suatu ketika kita perlu menyalin database dari satu server database sebagai backup data
+jika pada suatu saat server database yagn kita miliki mengalami kendala/ error,
+serangan virus, dll/
+
+Dengan adanya backup data tesebut kita bisa merestore/ mengembalikan data ke server lain.
+*/
+
+/*
+Mengekspor Data
+----------------
+Ekspor adalah pembuatan salinan data dari database.
+
+Kita dapat mengekspor data yang terdapat di dalam satu tabel tertentum seluruh tabel,
+bahkan keseluruhan objek di dalam databse (tabel, prosedur, fungsi, dll)
+
+Beberapa metode yang bisa dilakukan untuk mengekspor data sebagai berikut.
+
+- Menggunakan mysqldump
+- Menggunakan mysqlhotcopy
+- Menyalin file data secara langsung (manual)
+- Menggunakan perintah BACKUP TABLE
+*/
+
+
+/*
+----------
+mysqldump
+----------
+Merupakan program yang telah disediakan oleh MySQL untuk keperluan backup dan restore data.
+
+Cara kerjanya dengan cara membuat dump file yang isinya berupa perintah-perintah SQL
+yang dibutuhkan untuk membuat ulang database.
+
+Cara ini merupakan cara yang paling umum digunakan, yaitu dengan mengeksekusi perintah
+melalui terminal/ cmd.
+
+Format query mysqldump sebagai berikut
+-------------------------------------------------------------
+mysqldump -u <nama_user> -p <nama_database> > <nama_dumpfile>
+-------------------------------------------------------------
+*/
+
+-- Contoh
+-------------------------------------------------------------
+mysqldump -u root -p buku_db > C:\backup.sql
+-------------------------------------------------------------
+/*
+Dengan menjalankan perintah tersebut, maka akan tercipta sebuah file dengan ekstensi sql
+dan disimpan pada drive D:\Backup.
+
+File tersebut berisi perintah-perintah SQL yagn dibutuhkan untuk mebuat ulang database
+sekaligus tabel-tabel dan data-datanya.
+
+File tersebut yang akan digunakan untuk mengembalikan data jika suatu saat terjadi kerusakan
+dalam databse maupun pada komputer server.
+
+Beberapa opsi yang bisa digunakan saat menggunakan mysqldump yaitu:
+
+-- quick
+---------
+Berfungsi untuk mentransformasikan data secara langsung ke dalam dump file tanpa harus
+disimpan di dalam memori komputer. Hal ini akan mempercepat operasi backup.
+
+--add-drop-table
+----------------
+Opsi ini akan membuat perintah DROP TABLE sebelum membuat perintah CREATE TABLE
+
+--add-lock
+-----------
+Opsi ini akan menambahkan perintah LOCK TABLES dan UNLOCK TABLES di dalam dump file
+
+--extend-insert
+---------------
+Opsi ini digunakan untuk mengatakan kepada MySQL agar menambahkan baris-baris data ke dalam
+tabel yang terbuat hanya dengan menggunakan saatu perintah INSERT
+
+--databases
+-----------
+Opsi ini digunakan jika kita ingin membuat salinan data dari beberapa (lebih dari satu) database
+dallam satu perintah
+
+--all-databses
+--------------
+Opsi ini digunakan jika kita ingin membuat salinan dari semua database yang terdapat pada
+server MySQL dalam satu perintah
+
+-d atau --no-data
+------------------
+Opsi ini digunakan jika kita hanya ingin membuat salinan struktur datanya saja, tidak termasuk
+data yang terdapat di dalamnya
+*/
+
+-- Contoh penggunaan opsi mysqldummp
+-----------------------------------------------------------------
+mysqldump -u root -p --databases buku_db mysql > C:\dmp.sql
+-----------------------------------------------------------------
+-- Perintah di atas akan membuat satu dump file dari 2 database, yaitu 'buku_db' dan 'mysql'
+
+
+/*
+-------------
+mysqlhotcopy
+-------------
+mysqlhotcopy merupakan program yagn dikembangkan menggunakan bahasa perl, untuk itu kita perlu
+memasang software perl terlebih dahulu.
+
+Format penulisan perintah mysqlhotcopy sebagai berikut
+---------------------------------------------------------------
+mysqlhotcopy -u <nama_user> -p <nama_database> <lokasi_backup>
+---------------------------------------------------------------
+Cara kerja mysqlhotcopy adalah dengan menyalin daftar file data aktual yang terdapat di dalam
+database operasional dan memindahkannya ke lokasi baru.
+
+Semua proses dikerjakan di belakang layar, sehingga user tidak mengetahui detail teknisnya.
+*/
+
+/*
+Menyalin data secara langsung(manual)
+-------------------------------------
+Ini merupakan cara manual daripada mysqlhotcopy. Jika mysqlhotcopy yang melakukan prosesnya adalah
+program, namun untuk cara manual dilakukan step by stepnya oleh user.
+*/
+
+-- Berikut tahapan penyalinan data secara manual
+
+-- 1. Eksekusi perintah LOCK TABLES dengan query berikut
+------------------------------------
+LOCK TABLES
+pengarang READ,
+penerbit READ,
+kategori READ,
+buku READ,
+link_buku_pengarang READ,
+link_buku_kategori READ;
+------------------------------------
+
+-- 2. Eksekusi FLUSH TABLES
+------------------------------------
+FLUSH TABLES;
+------------------------------------
+
+-- 3. Salin file data (*.frm dan .MYD) yang ada di direktori C:\Program Files\MySQLDir\Data
+-- Gunakank copy-paste seperti biasa dan simpan di tempat yang dikehendaki
+
+-- 4. Jika sudah selesai, eksekusi UNLOK TABLES
+------------------------------------
+UNLOCK TABLES;
+------------------------------------
+
+
+/*
+BACKUP TABLE
+-------------
+Merupakan alternatif untuk melakukan bakcup table dengan perintah BACKUP TABLE.
+
+Namun perintah ini hanya bisa diterapkan kepada tabel yang
+menggunakan metode penyimpanan MyISAM.
+
+Dimungkinkan perintah ini akan dihapus dalam versi MySQL berikutnya
+karena statusnya sudah deprecated.
+
+Format perintah BACKUP TABLE
+----------------------------------------------------------------------
+BACKUP TABLE <nama_tabel> [<nama_tabel_2, ...] TO '<direktori tujuan>'
+----------------------------------------------------------------------
+*/
+-- Contoh perintah BACKUP TABLE
+--------------------------------------------------------
+BACKUP TABLE MyISAMTable1, MyISAMTable2 TO 'c:/tmp';
+--------------------------------------------------------
+-- Setelah dicoba query di atas belum berhasil (09/05/2022 11.25)
+
+
+/*
+Mengimpor Data
+--------------
+Salinan file yang dihasilkan oleh proses backup selanjutnya dapat disimpandan digunakan
+sewaktu-waktu jika terjadi keaslahan atau kerusakan pada server.
+
+Proses pengembalian data disebut import/ restore.
+*/
+
+/*
+Untuk proses restore dari hasil backup menggunakan perintah mysqldump, sebagai berikut.
+
+1. Dengan MySQL Client, buatlah database baru dengan nama tertentu, tidak harus sama
+dengan nama databse sebelumnya. Ini adalah databse kosong sebgai tempat objek-objek database
+akan dikembalikan.
+*/
+-- Contoh :
+--------------------------
+CREATE DATABASE db_target;
+--------------------------
+
+-- 2. Melalui Terminal/ command prompt jalankan perintah berikut
+--------------------------------------------------------------
+mysql -u root -p db_target < C:\backup.sql
+--------------------------------------------------------------
+
+/*
+Untuk proses restore data backup yang dihasilkan dari mysqlhotcopy, sebagai berikut
+
+1. Hentikan services server MySQL
+
+2. Salin file backup (*.frm dan *.MYD) ke dalam direktori C:\Program Files\MySQLDir\Data
+	Proses penyalinan data akan menimpa file lama
+
+3. Start services server MySQL
+*/
+
+/*
+Untuk proses restore data backup yang dihasilkan dari BAKCUP TABLE, sebagai berikut.
+
+Jalankan query dengan format
+--------------------------------------------------------------------------
+RESTORE TABLE <nama_tabel1> [,<nama_tabel2>, ..] FROM '<direktori tujuan>'
+--------------------------------------------------------------------------
+*/
+-- Contoh
+--------------------------------------------------------------------------
+RESTORE TABLE MyISAMTable1, MyISAMTable2 FROM 'c:/tmp';
+--------------------------------------------------------------------------
+-- Setelah dicoba query di atas belum berhasil (09/05/2022 11.42)
+
+
 -- 	============================
 		To be Continued
 -- 	============================
--- Ekspor dan Impor Data
 -- MySQL dan Python
 -- MySQL dan PHP
 -- Membuat Aplikasi Web dengan MySQL dan PHP
+
